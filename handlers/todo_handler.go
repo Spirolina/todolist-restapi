@@ -23,10 +23,11 @@ func init() {
 	}
 	username := os.Getenv("MONGODB_USERNAME")
 	password := os.Getenv("MONGODB_PASSWORD")
-
-	clientOptions := options.Client().ApplyURI(`mongodb+srv://` + username + `:` + password + `@cluster0.iz1vu.mongodb.net/?retryWrites=true&w=majority`)
+	uri := fmt.Sprintf("mongodb+srv://%s:%s@cluster0.iz1vu.mongodb.net/?retryWrites=true&w=majority", username, password)
+	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 
