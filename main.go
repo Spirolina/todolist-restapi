@@ -1,5 +1,22 @@
 package main
 
+import (
+	"net/http"
+
+	"github.com/Spirolina/todolist-restapi/handlers"
+)
+
 func main() {
-	// will be implemented
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		w.Write([]byte("hello world"))
+	})
+	http.HandleFunc("/add", handlers.CreateTodo)
+
+	err := http.ListenAndServe(":8000", nil)
+	if err != nil {
+		panic(err)
+	}
+
 }
