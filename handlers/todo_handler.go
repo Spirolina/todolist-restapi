@@ -59,3 +59,8 @@ func handleError(w http.ResponseWriter, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 	fmt.Fprintf(w, `{"error": %s}`, err.Error())
 }
+
+func getTodoID(r *http.Request) string {
+	id := r.URL.Path[len("/todos/"):]
+	return id
+}
