@@ -10,6 +10,8 @@ import (
 
 	"github.com/Spirolina/todolist-restapi/models"
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -52,6 +54,33 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(todo)
 
+}
+
+func DeleteTodo(w http.ResponseWriter, r *http.Request) {
+	tempId := getTodoID(r)
+	if tempId == "" {
+		handleError(w, fmt.Errorf("missing todo ID"))
+		return
+	}
+
+	id, err := primitive.ObjectIDFromHex(tempId)
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+
+	result, err := collection.DeleteOne(context.Background(), bson.M{"_id": id})
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+
+	if result.DeletedCount == 0 {
+		handleError(w, fmt.Errorf("todo not found"))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func handleError(w http.ResponseWriter, err error) {
