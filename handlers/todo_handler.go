@@ -81,6 +81,44 @@ func GetTodo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(todo)
 }
 
+func UpdateTodo(w http.ResponseWriter, r *http.Request) {
+	strID := getTodoID(r)
+	if strID == "" {
+		handleError(w, fmt.Errorf("missing todo ID"))
+		return
+	}
+
+	id, err := primitive.ObjectIDFromHex(strID)
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+
+	var updatedTodo models.Todo
+	err = json.NewDecoder(r.Body).Decode(&updatedTodo)
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+	updatedTodo.ID = id
+	fmt.Println(updatedTodo)
+
+	result, err := collection.UpdateOne(context.Background(), bson.M{"_id": id}, bson.M{"$set": updatedTodo})
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+
+	if result.ModifiedCount == 0 {
+		handleError(w, fmt.Errorf("todo not found"))
+		return
+	}
+
+	updatedTodo.ID = id
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(updatedTodo)
+}
+
 func DeleteTodo(w http.ResponseWriter, r *http.Request) {
 	strID := getTodoID(r)
 	if strID == "" {

@@ -19,6 +19,8 @@ func main() {
 			handlers.GetTodo(w, r)
 		case http.MethodDelete:
 			handlers.DeleteTodo(w, r)
+		case http.MethodPut:
+			handlers.UpdateTodo(w, r)
 		}
 	})
 
