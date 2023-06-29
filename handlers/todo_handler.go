@@ -56,14 +56,39 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func DeleteTodo(w http.ResponseWriter, r *http.Request) {
-	tempId := getTodoID(r)
-	if tempId == "" {
+func GetTodo(w http.ResponseWriter, r *http.Request) {
+	strID := getTodoID(r)
+	if strID == "" {
 		handleError(w, fmt.Errorf("missing todo ID"))
 		return
 	}
 
-	id, err := primitive.ObjectIDFromHex(tempId)
+	id, err := primitive.ObjectIDFromHex(strID)
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+
+	var todo models.Todo
+
+	err = collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&todo)
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(todo)
+}
+
+func DeleteTodo(w http.ResponseWriter, r *http.Request) {
+	strID := getTodoID(r)
+	if strID == "" {
+		handleError(w, fmt.Errorf("missing todo ID"))
+		return
+	}
+
+	id, err := primitive.ObjectIDFromHex(strID)
 	if err != nil {
 		handleError(w, err)
 		return

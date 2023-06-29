@@ -13,7 +13,14 @@ func main() {
 		w.Write([]byte("hello world"))
 	})
 	http.HandleFunc("/add", handlers.CreateTodo)
-	http.HandleFunc("/todos/", handlers.DeleteTodo)
+	http.HandleFunc("/todos/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			handlers.GetTodo(w, r)
+		case http.MethodDelete:
+			handlers.DeleteTodo(w, r)
+		}
+	})
 
 	err := http.ListenAndServe(":8000", nil)
 	if err != nil {
