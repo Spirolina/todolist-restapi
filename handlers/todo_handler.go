@@ -38,6 +38,31 @@ func init() {
 
 }
 
+func GetAllTodos(w http.ResponseWriter, r *http.Request) {
+	var todos []models.Todo
+
+	cursor, err := collection.Find(context.Background(), bson.M{})
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+
+	defer cursor.Close(context.Background())
+
+	for cursor.Next(context.Background()) {
+		var todo models.Todo
+		if err := cursor.Decode(&todo); err != nil {
+			handleError(w, err)
+			return
+		}
+		todos = append(todos, todo)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(todos)
+
+}
+
 func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	var todo models.Todo
 	err := json.NewDecoder(r.Body).Decode(&todo)

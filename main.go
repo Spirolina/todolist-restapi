@@ -13,6 +13,7 @@ func main() {
 		w.Write([]byte("hello world"))
 	})
 	http.HandleFunc("/add", handlers.CreateTodo)
+	http.HandleFunc("/all", handlers.GetAllTodos)
 	http.HandleFunc("/todos/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
